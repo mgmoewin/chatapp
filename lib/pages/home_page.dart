@@ -15,14 +15,14 @@ class HomePage extends StatelessWidget {
   // logout function
   void logout() {
     // get auth service and call sign out
-    final _auth = AuthService();
-    _auth.signOut();
+    final auth = AuthService();
+    auth.signOut();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text('HOME'),
         centerTitle: true,
@@ -72,9 +72,13 @@ class HomePage extends StatelessWidget {
     // display all user expect for the current logged in user
     if (userData['email'] != _auth.getCurrentUser()!.email) {
       {
+        //
         return UserTile(
           text: userData['email'],
-          onTap: () {
+          onTap: () async {
+            // mark all messages in this chat page as read
+            await _chat.markMessageAsRead(userData['uid']);
+
             // tapped on a user ->  go to chat page
             Navigator.push(
               context,
@@ -86,6 +90,7 @@ class HomePage extends StatelessWidget {
               ),
             );
           },
+          unreadMessagesCount: userData['unreadCount'],
         );
       }
     } else {

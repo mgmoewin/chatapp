@@ -54,14 +54,38 @@ class ChatService extends ChangeNotifier {
           final usersSnapshot = await _firestore.collection('Users').get();
 
           // return a stream list, excluding current user and block users
-          return usersSnapshot.docs
-              .where(
-                (doc) =>
-                    doc.data()['email'] != currentUser.email &&
-                    !blockedUserIds.contains(doc.id),
-              )
-              .map((doc) => doc.data())
-              .toList();
+          final usersData = await Future.wait(
+            // get all doc
+            usersSnapshot.docs
+                .
+                // expectiong current user and blocked users
+                where(
+                  (doc) =>
+                      doc.data()['email'] != currentUser.email &&
+                      !blockedUserIds.contains(doc.id),
+                )
+                .map((doc) async {
+                  // look at each user
+                  final userData = doc.data();
+                  // and their chat rooms
+                  final chatRoomID = [currentUser.uid, doc.id]..sort();
+                  // count the number of unread messages
+                  final unreadMessageSnapshot = await _firestore
+                      .collection("chat_rooms")
+                      .doc(chatRoomID.join("_"))
+                      .collection("messages")
+                      .where('receiverId', isEqualTo: currentUser.uid)
+                      .where('isRead', isEqualTo: false)
+                      .get();
+
+                  userData['unreadCount'] = unreadMessageSnapshot.docs.length;
+
+                  return userData;
+                })
+                .toList(),
+          );
+
+          return usersData;
         });
   }
 
@@ -79,6 +103,7 @@ class ChatService extends ChangeNotifier {
       receiverId: receiverId,
       message: message,
       timestamp: tiemstamp.toDate(),
+      isRead: false,
     );
 
     //contruct chat room id for the two users (sorted to ensure uniqueness)
@@ -108,6 +133,32 @@ class ChatService extends ChangeNotifier {
         .collection('messages')
         .orderBy('timestamp', descending: false)
         .snapshots();
+  }
+
+  // mark message as read
+  Future<void> markMessageAsRead(String messageId) async {
+    // get current user id
+    final currentUserId = _auth.currentUser!.uid;
+
+    //get chat room
+    List<String> ids = [currentUserId, messageId];
+    ids.sort();
+    String chatRoomId = ids.join('_');
+
+    // get unread message
+    final unreadMessagesQuery = _firestore
+        .collection("chat_rooms")
+        .doc(chatRoomId)
+        .collection("messages")
+        .where("receiverId", isEqualTo: currentUserId)
+        .where("isRead", isEqualTo: false);
+
+    final unreadMessagesSnapshot = await unreadMessagesQuery.get();
+
+    // go through each messages and mark as read
+    for (var messageDoc in unreadMessagesSnapshot.docs) {
+      await messageDoc.reference.update({"isRead": true});
+    }
   }
 
   // Report User

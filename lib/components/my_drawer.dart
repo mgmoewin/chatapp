@@ -1,3 +1,4 @@
+import 'package:chatapp/components/my_drawer_tile.dart';
 import 'package:chatapp/services/auth/auth_service.dart';
 import 'package:chatapp/pages/setting_page.dart';
 import 'package:flutter/material.dart';
@@ -5,22 +6,31 @@ import 'package:flutter/material.dart';
 class MyDrawer extends StatelessWidget {
   const MyDrawer({super.key});
 
-  void logout() {
+  void logout(BuildContext context) {
     final auth = AuthService();
     auth.signOut();
+
+    // then navigate to initial route (Auth gate / login Register page)
+    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // logo on top of drawer
           Column(
             children: [
-              DrawerHeader(
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 120,
+                  right: 120,
+                  top: 140,
+                  bottom: 100,
+                ),
                 child: Center(
                   child: Icon(
                     Icons.message,
@@ -30,21 +40,26 @@ class MyDrawer extends StatelessWidget {
                 ),
               ),
 
+              // Divider
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Divider(
+                  color: Theme.of(context).colorScheme.secondary,
+                  indent: 25,
+                  endIndent: 25,
+                ),
+              ),
+
               // home list tile
               Padding(
                 padding: const EdgeInsets.only(left: 25.0),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.home,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 40,
-                  ),
-                  title: Text(
-                    'H O M E',
-                    style: TextStyle(
-                      // color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
+                child: MyDrawerTile(
+                  title: 'H O M E',
+
+                  icon: Icons.home,
+
+                  // color: Theme.of(context).colorScheme.primary,
+                  // size: 40,
                   onTap: () {
                     Navigator.pop(context);
                   },
@@ -55,24 +70,13 @@ class MyDrawer extends StatelessWidget {
               // settings list tile
               Padding(
                 padding: const EdgeInsets.only(left: 25.0),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.settings,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 40,
+                child: MyDrawerTile(
+                  title: "S E T T I N G S",
+                  icon: Icons.settings,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SettingPage()),
                   ),
-                  title: Text(
-                    'S E T T I N G S',
-                    style: TextStyle(
-                      // color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SettingPage()),
-                    );
-                  },
                 ),
               ),
             ],
@@ -81,19 +85,12 @@ class MyDrawer extends StatelessWidget {
           // logout list tile
           Padding(
             padding: const EdgeInsets.only(left: 25.0),
-            child: ListTile(
-              leading: Icon(
-                Icons.logout,
-                color: Theme.of(context).colorScheme.primary,
-                size: 40,
-              ),
-              title: Text(
-                'L O G O U T',
-                style: TextStyle(
-                  // color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              onTap: logout,
+            child: MyDrawerTile(
+              title: "L O G O U T",
+              icon: Icons.logout,
+              onTap: () {
+                logout(context);
+              },
             ),
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:chatapp/components/%20chat_bubble.dart';
 import 'package:chatapp/components/my_textfield.dart';
+import 'package:chatapp/pages/home_page.dart';
 import 'package:chatapp/services/auth/auth_service.dart';
 import 'package:chatapp/services/chat/chat_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,7 +10,11 @@ class ChatPage extends StatefulWidget {
   final String receriverEmail;
   final String receiverId;
 
-  ChatPage({super.key, required this.receriverEmail, required this.receiverId});
+  const ChatPage({
+    super.key,
+    required this.receriverEmail,
+    required this.receiverId,
+  });
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -84,6 +89,19 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.receriverEmail),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            // navigate to homepage and remove all previous routes
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+
+              // keep the first route (auth gate)
+              (route) => route.isFirst,
+            );
+          },
+        ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
 

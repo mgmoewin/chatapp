@@ -3,7 +3,14 @@ import 'package:flutter/material.dart';
 class UserTile extends StatelessWidget {
   final String text;
   final void Function()? onTap;
-  const UserTile({super.key, required this.text, this.onTap});
+  final int unreadMessagesCount;
+
+  const UserTile({
+    super.key,
+    required this.text,
+    this.onTap,
+    this.unreadMessagesCount = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,35 +24,44 @@ class UserTile extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
         padding: const EdgeInsets.all(16),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // user icon
-            Icon(
-              Icons.person,
-              size: 50,
-              color: Theme.of(context).colorScheme.primary,
+            Row(
+              children: [
+                // user icon
+                Icon(
+                  Icons.person,
+                  size: 50,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 20),
+
+                // username text
+                Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 20),
 
-            // username text
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
+            //  unread message count
+            unreadMessagesCount > 0
+                ? Padding(
+                    padding: const EdgeInsets.only(right: 20.0),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        shape: BoxShape.circle,
+                      ),
 
-            // messaage preview text
-
-            // time text
-
-            // unread message count badge
-
-            // read/unread status icon
-
-            // divider line
-
-            // spacing
+                      child: Text(unreadMessagesCount.toString()),
+                    ),
+                  )
+                : Container(),
           ],
         ),
       ),
