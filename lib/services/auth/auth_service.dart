@@ -1,3 +1,4 @@
+import 'package:chatapp/services/notifications/notification_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -27,6 +28,8 @@ class AuthService {
         'email': email,
         'uid': userCredential.user?.uid,
       });
+
+      // return user credential
       return userCredential;
     } on FirebaseAuthException catch (e) {
       throw Exception(e.code);
@@ -47,6 +50,8 @@ class AuthService {
         'email': email,
         'uid': userCredential.user?.uid,
       });
+
+      // return user credential
       return userCredential;
     } on FirebaseAuthException catch (e) {
       throw Exception(e.code);
@@ -55,7 +60,16 @@ class AuthService {
 
   // sign out method
   Future<void> signOut() async {
-    return await _auth.signOut();
+    // get the current user ID before signing out
+    final String? userId = _auth.currentUser?.uid;
+
+    // sign out from firebase
+    await _auth.signOut();
+
+    // clear the notification token if a user was logged in
+    if (userId != null) {
+      await clearTokenOnLogout(userId);
+    }
   }
 
   // delete account

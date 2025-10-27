@@ -29,10 +29,6 @@ class HomePage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         // foregroundColor: Colors.grey,
         elevation: 0,
-        actions: [
-          // logout button
-          IconButton(onPressed: logout, icon: Icon(Icons.logout)),
-        ],
       ),
       drawer: MyDrawer(),
       body: _buildUserList(),

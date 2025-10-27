@@ -117,6 +117,11 @@ class ChatService extends ChangeNotifier {
         .doc(chatRoomId)
         .collection('messages')
         .add(newMessage.toMap());
+
+    // TODO: Send Push Notification using a third-party service like OneSignal
+    // 1. Get receiver's notification token/player_id from Firestore 'Users' collection.
+    // 2. Make an HTTP POST request to the third-party service's API.
+    // Example: await sendNotificationToUser(receiverId, message);
   }
 
   // get messages stream
